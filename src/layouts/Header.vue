@@ -28,6 +28,9 @@
          <i class="uil uil-user-check"></i> Elections
         </router-link>
 
+         <router-link to="/consensus-group" class="text-base font-medium text-gray-500 hover:text-gray-900 py-6">
+          <i class="uil uil-user-circle text-xl"></i> Consensus Group
+        </router-link>
       </nav>
       <div class="hidden md:flex items-center justify-end md:flex-1 lg:w-0">
        <router-link to="/login" class="invisible transition pl-10 relative ml-8 whitespace-nowrap inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-green-600 hover:bg-green-700">
@@ -38,7 +41,7 @@
             </span>Login
         </router-link>
         <figcaption class="x-6 p-2">
-          <a  href="http://localhost:8081" target="_blank"  class="cursor-pointer flex items-center space-x-4 p">
+          <span @click="logout" class="cursor-pointer flex items-center space-x-4 p">
             <div  class="flex-none w-14 h-14 bg-white rounded-full flex items-center justify-center">
               <!-- <img src="../assets/img/fg-print.svg" alt="" class="w-12 h-12 rounded-full bg-purple-100" loading="lazy"> -->
               <span class="inline-block h-12 w-12 rounded-full overflow-hidden bg-gray-100">
@@ -48,9 +51,9 @@
               </span>
             </div>
             <div class="flex-auto">
-              Gilbert!
+              {{$store.getters.identity.first_name}}
             </div>
-          </a>
+          </span>
         </figcaption>
       </div>
     </div>
@@ -60,8 +63,16 @@
 
 </template>
 <script>
+import {  removeAuthToken } from "@/helpers/auth";
 export default {
-    name: "app-header"
+    name: "app-header",
+    methods: {
+      logout() {
+        removeAuthToken()
+        this.$store.commit("SET_IDENTITY", null)
+        return  window.location ="/login"
+      }
+    }
 }
 </script>
 

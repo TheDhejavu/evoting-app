@@ -2,7 +2,7 @@
 <Layout page="auth">
   <!-- component -->
 
-<div class="relative bg-gray-100 min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-no-repeat bg-cover relative items-center"
+<div class="relative flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-no-repeat bg-cover relative items-center"
 	>
 	
 	<div class="max-w-md py-20 w-full space-y-8 p-10 bg-white rounded-xl z-10">
@@ -20,40 +20,37 @@
 			<span class="h-px w-16 bg-gray-300"></span>
 		</div>
 		<form class="mt-8 space-y-6" action="#" method="POST">
-			<input type="hidden" name="remember" value="true">
 			<div class="relative">
-				<div class=" hidden absolute right-0 mt-4"><svg xmlns="http://www.w3.org/2000/svg"
-						class="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-							d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-					</svg>
-        </div>
 				<label class="text-sm font-bold text-gray-700 tracking-wide">11-DID Digits</label>
-				<input class=" w-full text-base py-2 border-b border-gray-300 focus:outline-none focus:border-green-500" type="" placeholder="11-DID Digits" value="">
-      </div>
+				<input 
+					class=" w-full text-base py-2 border-b border-gray-300 focus:outline-none focus:border-green-500" 
+					type="text" 
+					placeholder="11-DID Digits" 
+					v-model="formControls.digits"
+				>
+			</div>
 			<div class="mt-8 content-center">
 				<label class="text-sm font-bold text-gray-700 tracking-wide">
 					Password
 				</label>
-				<input class="w-full content-center text-base py-2 border-b border-gray-300 focus:outline-none focus:border-green-500" type="" placeholder="Enter your password" value="">
-      </div>
-			<div class="flex items-center justify-between">
-					<div class="flex items-center">
-						<input id="remember_me" name="remember_me" type="checkbox" class="h-4 w-4 bg-green-500 focus:ring-green-400 border-gray-300 rounded">
-						<label for="remember_me" class="ml-2 block text-sm text-gray-900">
-                            Remember me
-                        </label>
-					</div>
-				<div class="text-sm">
-					<a href="#" class="font-medium text-green-500 hover:text-green-500">
-								Forgot your password?
-					</a>
-				</div>
+				<input 
+					class="w-full content-center text-base py-2 border-b border-gray-300
+					focus:outline-none focus:border-green-500" 
+					type="password"
+					placeholder="Enter your password"
+					v-model="formControls.password"
+				>
 			</div>
 			<div>
-				<button type="submit" class="w-full flex justify-center bg-green-500 text-gray-100 p-4  rounded-full tracking-wide
-                                font-semibold  focus:outline-none focus:shadow-outline hover:bg-green-600 shadow-lg cursor-pointer transition ease-in duration-300">
-                    Sign in
+				<button 
+					:disabled="isLoading" 
+					@click="handleSubmit"
+					type="submit" 
+					class="w-full flex justify-center bg-green-500 text-gray-100 p-4  rounded-full tracking-wide
+					font-semibold  focus:outline-none focus:shadow-outline hover:bg-green-600 shadow-lg cursor-pointer transition ease-in duration-300"
+				>
+                   <loader :loading="isLoading" size="16px"></loader>
+					<span v-if="!isLoading">Login</span>
                 </button>
 			</div>
 			
@@ -65,15 +62,61 @@
 
 <script>
 import Layout from "../../layouts/Default";
+import { loginIdentity } from "@/api";
+import Loader from 'vue-spinner/src/PulseLoader.vue';
+import { setAuthToken } from "@/helpers/auth";
 
 export default {
   name: "Login",
   components: {
-    Layout
+    Layout,
+    Loader
+  },
+  data() {
+    return {
+      formControls: {
+        digits: "",
+        passowrd: ""
+      },
+      isLoading: false,
+    }
+  },
+  methods: {
+    handleSubmit() {
+		this.isLoading = true;
+		loginIdentity(this.formControls).then( (response) => {
+			this.$store.commit("SET_IDENTITY", response.data.data.identity)
+			this.$toaster.success(response.data.message)
+			setAuthToken(response.data.data.access_token);
+			this.$router.push("/")
+        })
+        .catch((error) =>{
+			console.log(error.response.data)
+			if (error.response){
+				if( typeof error.response.data.data !== "undefined") {
+				for(const key in error.response.data.data){
+					this.$toaster.error(error.response.data.data[key])
+					break;
+				}
+				} else {
+				this.$toaster.error(error.response.data.message)
+				}
+			}else {
+				this.$toaster.error("Whoops!! something went wrong")
+			}
+        }).finally(()=>{
+          this.isLoading = false
+        })
+    }
   }
 }
 </script>
 
-<style>
-
+<style lang="scss" scoped>
+.login-button:disabled{
+  @apply opacity-70 cursor-not-allowed;
+  &:hover{
+    @apply bg-green-600
+  }
+}
 </style>

@@ -53,8 +53,8 @@ export default {
           orient: "vertical",
           left: "left",
           data: [
-            "PDP (Muammend buahari)",
-            "APC (Atiku dangote)",
+            "PPP (Muammend buahari)",
+            "APV (Atiku dangote)",
             "ADC (Yowosore oteloda)",
             "YPP (Makinde azeez)",
             "APP (Kanu Nwankwa)"

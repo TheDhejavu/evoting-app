@@ -10,32 +10,22 @@
               <tr>
                 <th class="px-6 py-4 text-emerald-600">S/N</th>
                 <th class="w-1/4 px-6 py-4 text-emerald-600">Title</th>
-                <th class="w-1/3 px-6 py-4 text-emerald-600">Despcription</th>
-                <th class="px-6 py-4 text-emerald-600">Candidates/Parties</th>
-                <th class="px-6 py-4 text-emerald-600">Phase</th>
+                <th class="w-1/2 px-6 py-4 text-emerald-600">Despcription</th>
+                <th class="w-1/8 px-6 py-4 text-emerald-600">Candidates</th>
+                <th class="w-1/6 px-6 py-4 text-emerald-600">Phase</th>
               </tr>
             </thead>
             <tbody>
-              <tr class="cursor-pointer hover:bg-gray-100 transition " @click="$router.push('/elections/hello')">
-                <td class="border border-emerald-500 px-6 py-4 text-emerald-600 font-medium">1</td>
-                <td class="border border-emerald-500 px-6 py-4 text-emerald-600 font-medium">Nigeria Presidential Election</td>
-                <td class="border border-emerald-500 px-6 py-4 text-emerald-600 font-medium">The general Presidential election of the republic of nigeria</td>
-                 <td class="border border-emerald-500 px-6 py-4 text-emerald-600 font-medium">35</td>
-                <td class="cursor-pointer px-6 py-4 hover:bg-gray-100 transition border border-emerald-500 px-2 py-4 text-emerald-600 font-medium"> <span class="bg-yellow-500 py-2 rounded-full block text-sm font-bold text-center">Accreditation phase </span></td>
-              </tr>
-              <tr class="bg-emerald-200 cursor-pointer hover:bg-gray-100 transition " @click="$router.push('/elections/hello/cast-vote')">
-                <td class="border border-emerald-500 px-6 py-4 text-emerald-600 font-medium">2</td>
-                <td class="border border-emerald-500 px-6 py-4 text-emerald-600 font-medium">Nigeria Presidential Election</td>
-                <td class="border border-emerald-500 px-6 py-4 text-emerald-600 font-medium">The general Presidential election of the republic of nigeria</td>
-                 <td class="border border-emerald-500 px-6 py-4 text-emerald-600 font-medium">11</td>
-               <td class="cursor-pointer px-6 py-4 hover:bg-gray-100 transition border border-emerald-500 px-2 py-4 text-emerald-600 font-medium"> <span class="bg-gray-200 px-2 py-2 rounded-full block text-sm font-bold text-center">Start phase </span></td>
-              </tr>
-              <tr class="cursor-pointer hover:bg-gray-100 transition " @click="$router.push('/elections/hello/cast-vote')">
-                <td class="border border-emerald-500 px-6 py-4 text-emerald-600 font-medium">1</td>
-                <td class="border border-emerald-500 px-6 py-4 text-emerald-600 font-medium">Nigeria Presidential Election</td>
-                <td class="border border-emerald-500 px-6 py-4 text-emerald-600 font-medium text-sm">The general Presidential election of the republic of nigeria</td>
-                <td class="border border-emerald-500 px-6 py-4 text-emerald-600 font-medium">10</td>
-                <td class="cursor-pointer px-6 py-4 hover:bg-gray-100 transition border border-emerald-500 px-2 py-4 text-emerald-600 font-medium"> <span class="bg-green-500 px-2 py-2 rounded-full block text-sm font-bold text-center">Voting phase </span></td>
+              <tr class="cursor-pointer hover:bg-gray-100 transition " @click="$router.push(`/elections/${election.id}`)" v-for="election, i in elections" :key="election.id">
+                <td class="border border-emerald-500 px-6 py-4 text-emerald-600 font-medium">{{i+1}}</td>
+                <td class="border border-emerald-500 px-6 py-4 text-emerald-600 font-medium">{{election.title}}</td>
+                <td class="border border-emerald-500 px-6 py-4 text-emerald-600 font-medium">{{election.description}}</td>
+                 <td class="border border-emerald-500 px-6 py-4 text-emerald-600 font-medium">{{election.candidates.length}}</td>
+                <td class="cursor-pointer px-6 py-4 hover:bg-gray-100 transition border border-emerald-500 px-2 py-4 text-emerald-600 font-medium"> 
+                  <span 
+                  class="py-2 rounded-full block text-sm font-bold text-center " 
+                  :class="phase(election)">{{election.phase}} phase </span>
+                </td>
               </tr>
             </tbody>
           </table>
@@ -45,12 +35,32 @@
 </template>
 
 <script>
+import  { getElections } from "@/api";
 import Layout from "@/layouts/Default";
 export default {
     name: "elections",
     components: {
       Layout
-    }
+    },
+    data()  {
+      return {
+        elections: []
+      }
+    },
+    methods: {
+      phase(election) {
+        console.log(election.phase)
+        return election.phase === 'accreditation' ? 'bg-yellow-300': election.phase === 'initial' ? 'bg-gray-200' : 'bg-green-500'
+      }
+    },
+    mounted() {
+      getElections().then(response=> {
+        this.elections = response.data.data
+        console.log(this.elections)
+      }).catch(error=>{
+        console.log(error.response)
+      })
+    },
 }
 </script>
 

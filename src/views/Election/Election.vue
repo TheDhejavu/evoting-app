@@ -24,15 +24,15 @@
                 <label class="mr-2 block text-gray-700 text-sm font-bold mb-2" for="title">
                   Title
                 </label>
-                <p>Nigerial Presidential Election</p>
+                <p>{{election.title}}</p>
               </div>
             </div>
             <div class="w-1/2">
               <div class="bg-white p-4">
                 <label class="block text-gray-700 text-sm font-bold mb-2" for="candidates">
-                  Candidates & parties
+                  Candidates
                 </label>
-                <p> 100 </p>
+                <p> {{election.candidates.length}} </p>
               </div>
             </div>
           </div>
@@ -40,20 +40,20 @@
               <label class="mr-2 block text-gray-700 text-sm font-bold mb-2" for="desp">
                 Description
               </label>
-              <p>The general Presidential election of the republic of nigeria</p>
+              <p>{{election.description}}</p>
           </div>
           <div class="mb-6 bg-white p-4">
               <label class="mr-2 block text-gray-700 text-sm font-bold mb-2" for="desp">
                 Accreditation
               </label>
-              <div class="flex py-3"> 
+               <div class="flex py-3"> 
                   <div class="w-1/2">
                     <h2 class="text-sm  font-bold text-gray-700"> Start Date </h2>
-                    <p class="text-gray-700 text-base">June 23 2021  </p>
+                    <p class="text-gray-700 text-base">{{election.accreditation_at.start}}</p>
                   </div>
                   <div class="w-1/2">
                     <h2 class="text-sm font-bold text-gray-700"> End Date </h2>
-                    <p class="text-gray-700 text-base">June 23 2021  </p>
+                    <p class="text-gray-700 text-base">{{election.accreditation_at.end}} </p>
                   </div>
               </div>
   
@@ -62,28 +62,68 @@
               <label class="mr-2 block text-gray-700 text-sm font-bold mb-2" for="desp">
                 Election
               </label>
+             
               <div class="flex py-3"> 
                   <div class="w-1/2">
                     <h2 class="text-sm  font-bold text-gray-700"> Start Date </h2>
-                    <p class="text-gray-700 text-base">June 23 2021  </p>
+                    <p class="text-gray-700 text-base">{{election.vote_at.start}} </p>
                   </div>
                   <div class="w-1/2">
                     <h2 class="text-sm font-bold text-gray-700"> End Date </h2>
-                    <p class="text-gray-700 text-base">June 23 2021  </p>
+                    <p class="text-gray-700 text-base">{{election.vote_at.start}}  </p>
                   </div>
               </div>
           </div>
+          <div class="w-1/2">
+              <div class="bg-white p-4">
+                <label class="mr-2 block text-gray-700 text-sm font-bold mb-2" for="title">
+                  Phase
+                </label>
+                <p class="py-2 px-10 rounded-full inline-block text-sm font-bold text-center" :class="phase(election)">{{election.phase}}</p>
+              </div>
+            </div>
        </div>
     </div>
   </Layout>
 </template>
 <script>
 import Layout from "./components/layout";
+import  { getElection } from "@/api";
 export default {
   name: "election",
   components: {
     Layout,
   },
+  data() {
+    return {
+      election: {
+        title: "",
+        description: "",
+        accreditation_at: {
+          start: "",
+          end: "",
+        },
+        candidates: [],
+        vote_at: {
+          start: "",
+          end: "",
+        }
+      }
+    }
+  },
+  methods: {
+    phase(election) {
+      return election.phase === 'accreditation' ? 'bg-yellow-300': election.phase === 'initial' ? 'bg-gray-200' : 'bg-green-500'
+    }
+  },
+  mounted(){
+    getElection(this.$route.params.election).then(response=> {
+        this.election = response.data.data
+        console.log(this.election)
+      }).catch(error=>{
+        console.log(error.response)
+      })
+  }
 }
 </script>
 

@@ -6,17 +6,17 @@
               <li 
                   class="transition text-base font-extrabold text-gray-500 hover:text-gray-900"
               >
-                  <router-link to="/elections/hello" class=" px-3 py-3  block">Election </router-link>
+                  <router-link :to="`/elections/${$route.params.election}/`" class=" px-3 py-3  block">Election </router-link>
               </li>
               <li
                   class="transition text-base font-extrabold text-gray-500 hover:text-gray-900"
               >
-                  <router-link to="/elections/hello/cast-vote" class="px-3 py-3 block">Cast Vote</router-link>
+                  <router-link :to="`/elections/${$route.params.election}/cast-vote`" class="px-3 py-3 block">Cast Vote</router-link>
               </li>
               <li
                   class="transition text-base font-extrabold text-gray-500 hover:text-gray-900"
               >
-                  <router-link to="/elections/hello/results" class="px-3 py-3 block">Results</router-link>
+                  <router-link :to="`/elections/${$route.params.election}/results`" class="px-3 py-3 block">Results</router-link>
               </li>
           </ul>
         </nav>

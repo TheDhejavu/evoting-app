@@ -6,10 +6,24 @@
 
 <script>
 
+import { isAuthenticated , removeAuthToken} from "@/helpers/auth";
 export default {
   name: 'App',
-  components: {}
-}
+  mounted() {
+    this.$store.dispatch('ALL_COUNTRY')
+    if(isAuthenticated()){
+      this.$store.dispatch("GET_IDENTITY")
+    }
+  },
+  watch: {
+    "$store.getters.errors": (errors)=>{
+      if(errors.data.status === 401 && errors.type == "identity") {
+        removeAuthToken()
+        this.$router.push("/login")
+      }
+    }
+  }
+};
 </script>
 
 <style>
