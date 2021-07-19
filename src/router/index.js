@@ -58,6 +58,14 @@ const routes = [
     component: () => import('@/views/Login/Login.vue'),
   },
   {
+    path: '/explorer',
+    name: 'explorer',
+    component: () => import('@/views/Explorer/Explorer'),
+    meta: {
+      page: true,
+    },
+  },
+  {
     path: '*',
     name: 'not-found',
     redirect: "/",
@@ -76,11 +84,11 @@ router.beforeEach((to, from, next) => {
   const currentUser = isAuthenticated();
   const requiresLogin = to.matched.some((record) => record.meta.requiresLogin);
   const page = to.matched.some((record) => record.meta.page);
-  
+
   if (page) return next();
   if (requiresLogin && !currentUser) return next('login');
   if (!requiresLogin && currentUser) return next({ path: '/dashboard/identity' });
-  
+
   return next();
 });
 

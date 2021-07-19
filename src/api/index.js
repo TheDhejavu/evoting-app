@@ -13,8 +13,8 @@ export function createIdentity(formData) {
         method: "post",
         url: url,
         data: formData,
-        headers: { 
-            "Content-Type": "multipart/form-data" 
+        headers: {
+            "Content-Type": "multipart/form-data"
         }
     })
 }
@@ -35,14 +35,26 @@ export function getElection(id) {
     return axios.get(`${BASE_URL}/elections/${id}`, authHeader())
 }
 
-export function initAccreditation(id) {
-    return axios.post(`${BASE_URL}/accreditation/${id}`, authHeader())
-}
-
 export function castVote(id) {
     return axios.post(`${BASE_URL}/vote/${id}`, authHeader())
 }
 
 export function getGroup() {
     return axios.get(`${BASE_URL}/group`, authHeader())
+}
+
+export function accredite(id, payload) {
+    return axios.post(`${BASE_URL}/accreditation/${id}/accredite`, payload, authHeader())
+}
+
+export function castBallot(id, payload) {
+    return axios.post(`${BASE_URL}/voting/${id}/cast-ballot`, payload, authHeader())
+}
+
+export function getResults(id) {
+    return axios.get(`${BASE_URL}/voting/${id}/results`, authHeader())
+}
+
+export function getBlockchain() {
+    return axios.get(`${BASE_URL}/blockchain`, authHeader())
 }

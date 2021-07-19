@@ -1,5 +1,5 @@
 <template>
-    <div class="layout">
+    <div class="layout bg-gray-100">
         <Header v-if="page != 'auth'"/>
         <main class="content max-w-screen-xl m-auto p-10">
             <!-- <h1 class="py-10 px-5 text-xl text-bold">{{title}}</h1> -->
@@ -28,7 +28,7 @@ export default {
 
 <style lang="scss">
 .layout {
-    background: #f0f0f0;
+    // background: #f0f0f0;
     min-height: 100vh;
     .content {
         min-height: 600px;

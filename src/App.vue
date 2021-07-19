@@ -5,38 +5,41 @@
 </template>
 
 <script>
-
-import { isAuthenticated , removeAuthToken} from "@/helpers/auth";
+import { isAuthenticated, removeAuthToken } from "@/helpers/auth";
 export default {
-  name: 'App',
+  name: "App",
   mounted() {
-    this.$store.dispatch('ALL_COUNTRY')
-    if(isAuthenticated()){
-      this.$store.dispatch("GET_IDENTITY")
+    this.$store.dispatch("ALL_COUNTRY");
+    if (isAuthenticated()) {
+      this.$store.dispatch("GET_IDENTITY");
     }
   },
   watch: {
-    "$store.getters.errors": (errors)=>{
-      if(errors.data.status === 401 && errors.type == "identity") {
-        removeAuthToken()
-        this.$router.push("/login")
+    "$store.getters.errors": (errors) => {
+      if (
+        errors.data &&
+        errors.data.status === 401 &&
+        errors.type == "identity"
+      ) {
+        removeAuthToken();
+        this.$route.push("/login");
       }
-    }
-  }
+    },
+  },
 };
 </script>
 
 <style>
-@import url('https://fonts.googleapis.com/css?family=Muli:300,400,500,600,700&display=swap');
+@import url("https://fonts.googleapis.com/css?family=Muli:300,400,500,600,700&display=swap");
 body {
-  @apply bg-gray-100
+  @apply bg-gray-100;
 }
 #app {
-  font-family: Muli,sans-serif;
+  font-family: Muli, sans-serif;
   -webkit-font-smoothing: antialiased;
   /* background: #000; */
 }
 h1 {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 </style>
