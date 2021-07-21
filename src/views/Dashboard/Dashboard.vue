@@ -73,7 +73,7 @@
             class="
               block
               pb-5
-              hover:bg-green-500
+              hover:bg-green-100
               shadow-lg
               cursor-pointer
               transition
@@ -94,8 +94,8 @@
                 <img :src="election.country.flag" class="w-8 pr-1" />
                 <p class="px-2 pt-1">{{ election.country.name }}</p>
               </div>
-              <p class="block text-green-700 pt-3 text-xs font-bold capitalize">
-                {{ election.phase }} Phase
+              <p class="block pt-3 text-xs font-bold capitalize" :class="phase(election.phase)">
+                {{ electionPhase(election.phase) }} phase
               </p>
               <div class="text-gray-900 font-extrabold text-3xl py-2">
                 {{ election.title }}
@@ -137,6 +137,10 @@ export default {
   data() {
     return {
       elections: [],
+      phases:  {
+        "voting_end": "voting end",
+        "accreditation_end": "accreditation end",
+      }
     };
   },
   mounted() {
@@ -149,6 +153,24 @@ export default {
         console.log(error.response);
       });
   },
+  methods: {
+    electionPhase(phase){
+      if(phase in this.phases) {
+        return this.phases[phase]
+      }
+
+      return phase;
+    },
+    phase(phase) {
+      if(phase === "accreditation" || phase === "voting" )
+        return "text-green-500"
+
+      if(phase === "accreditation_end" || phase === "voting_end")
+        return "text-red-500"
+
+      return "text-green-500";
+    }
+  }
 };
 </script>
 

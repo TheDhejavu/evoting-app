@@ -7,13 +7,13 @@
     >
       <div class="p-8 relative">
         <h4 class="py-3 text-xl font-bold text-center">
-          Accrediation using <br />Biometric Facial Recognition
+          Accrediation using <br />Biometric Facial Recognition 🔑
         </h4>
         <div class="bg-white shadowmd rounded px-5 pb-8 mb-4">
           <!-- <h1 class="text-xl font-bold flex">Biometric Facial Recognition</h1> -->
           <p class="opacity-50 text-sm py-5 max-w-lg">
-            Click the button below to start facial capturing and enrollment for
-            your digital identity system. It is Secure.
+            Click the button below to start facial capturing to verify your
+            digital identity. This process is secure.
           </p>
           <div class="camera relative">
             <button
@@ -36,6 +36,7 @@
                 bg-green-600
                 hover:bg-green-700
                 focus:outline-none
+                outline-none
                 focus:ring-2 focus:ring-offset-2 focus:ring-green-500
               "
             >
@@ -48,7 +49,7 @@
               v-on:click="takePicture"
               v-show="cameraEnabled"
             >
-              SNAP
+              <i class="uil uil-capture text-4xl"></i>
             </button>
           </div>
           <div class="pictures flex flex-wrap" ref="pictures"></div>
@@ -74,33 +75,21 @@
             bg-green-600
             hover:bg-green-700
             focus:outline-none
+            text-lg
             focus:ring-2 focus:ring-offset-2 focus:ring-green-500
           "
         >
-          <span class="absolute left-0 inset-y-0 flex items-center pl-3">
-            <svg
-              class="h-5 w-5 text-green-500 group-hover:text-green-400"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-              aria-hidden="true"
-            >
-              <path
-                fill-rule="evenodd"
-                d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
-                clip-rule="evenodd"
-              />
-            </svg>
-          </span>
           <loader :loading="isLoading" size="16px"></loader>
           <span v-if="!isLoading">Accredite</span>
         </button>
       </div>
+      <OverlayLoader :visible="isLoading" />
     </Modal>
   </div>
 </template>
 
 <script>
+import OverlayLoader from "@/components/OverlayLoader/OverlayLoader";
 import Modal from "./Modal.vue";
 import Loader from "vue-spinner/src/PulseLoader.vue";
 import { accredite } from "@/api";
@@ -110,12 +99,14 @@ export default {
   components: {
     Modal,
     Loader,
+    OverlayLoader,
   },
   props: {
     isVisible: {
       type: Boolean,
       default: false,
     },
+
     formControls: {
       type: Object,
       default: () => ({}),
@@ -123,6 +114,7 @@ export default {
   },
   data() {
     return {
+      message: "",
       cameraEnabled: false,
       isLoading: false,
       facialImage: null,
@@ -131,6 +123,7 @@ export default {
   beforeDestroy() {
     this.webCamOff();
   },
+
   methods: {
     init() {
       if (
@@ -175,11 +168,11 @@ export default {
         canvasPicture.height
       );
       var picture = document.createElement("div");
-      picture.className = "picture m-2";
+      picture.className = "picture m-2 w-full";
 
       picture.appendChild(canvasPicture);
       canvasPicture.className = "rounded-2xl shadow-xl";
-      this.$refs["pictures"].appendChild(picture);
+      this.$refs["pictures"].replaceChildren(picture);
 
       this.setImages(canvasPicture.toDataURL("image/png"));
     },
@@ -198,18 +191,33 @@ export default {
 
       this.isLoading = true;
       accredite(this.$route.params.election, formData)
-        .then((response) => {
-          console.log(response);
-          this.$toaster.success(response.data.message);
+        .then(() => {
+          this.$swal({
+            icon: 'success',
+            title: '<strong>Successfully Accredited</strong>',
+            html:
+              'You have been successfully accredited',
+            showCloseButton: true,
+            focusConfirm: false,
+          })
           this.handleCloseModal();
         })
         .catch((error) => {
-          console.log(error.response.data);
+          // console.log(error.response.data);
           if (error.response) {
-            this.$toaster.error(error.response.data.message);
+            this.message = error.response.data.message
           } else {
-            this.$toaster.error("Whoops!! something went wrong");
+            this.message = "Whoops!! something went wrong";
           }
+          this.$swal({
+            icon: 'error',
+            title: `<strong>Accreditation failed</strong>`,
+            html:
+              `${this.message}`,
+            showCloseButton: true,
+            focusConfirm: false,
+          })
+          
         })
         .finally(() => {
           this.isLoading = false;
@@ -218,13 +226,15 @@ export default {
     handleCloseModal() {
       this.$emit("close");
       this.webCamOff();
+      this.$refs["pictures"].innerHTML = "";
     },
   },
 };
 </script>
 <style lang="scss" >
+
 .accreditation-modal {
-  max-width: 550px;
+  max-width: 600px;
   margin-bottom: 150px !important;
   padding-bottom: 0px;
   top: 10px !important;
@@ -254,7 +264,9 @@ export default {
   cursor: pointer;
   transition: 0.2s;
   &:hover {
-    background-color: crimson;
+    background-color: #dc143c;
+    border: 1px solid #dc143c;
+    color: #fff;
   }
   &:active {
     background-color: darken($color: #ffce00, $amount: 15);

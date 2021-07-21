@@ -101,8 +101,8 @@
                     font-bold
                     text-center
                   "
-                  :class="phase(election)"
-                  >{{ election.phase }} phase
+                  :class="phase(election.phase)"
+                  >{{ electionPhase(election.phase) }} phase
                 </span>
               </td>
             </tr>
@@ -124,16 +124,28 @@ export default {
   data() {
     return {
       elections: [],
+      phases:  {
+        "voting_end": "voting end",
+        "accreditation_end": "accreditation end",
+      },
     };
   },
   methods: {
-    phase(election) {
-      console.log(election.phase);
-      return election.phase === "accreditation"
-        ? "bg-yellow-300"
-        : election.phase === "initial"
-        ? "bg-gray-200"
-        : "bg-green-500";
+    phase(phase) {
+      if(phase === "accreditation" || phase === "voting" )
+        return "bg-green-300"
+
+      if(phase === "accreditation_end" || phase === "voting_end")
+        return "bg-red-300"
+
+      return "bg-green-500";
+    },
+    electionPhase(phase){
+      if(phase in this.phases) {
+        return this.phases[phase]
+      }
+
+      return phase;
     },
   },
   mounted() {

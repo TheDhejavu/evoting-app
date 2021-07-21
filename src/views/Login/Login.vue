@@ -135,24 +135,36 @@ export default {
       loginIdentity(this.formControls)
         .then((response) => {
           this.$store.commit("SET_IDENTITY", response.data.data.identity);
-          this.$toaster.success(response.data.message);
+          this.$swal({
+            icon: 'success',
+            title: `<strong>${response.data.message}</strong>`,
+            html:"Welcome back to <strong>voting.app</strong>. ",
+            showCloseButton: true,
+            focusConfirm: false,
+          })
           setAuthToken(response.data.data.access_token);
           this.$router.push("/");
         })
         .catch((error) => {
-          console.log(error.response.data);
+          // console.log(error.response.data);
+          var message = "Whoops!! something went wrong"
           if (error.response) {
             if (typeof error.response.data.data !== "undefined") {
               for (const key in error.response.data.data) {
-                this.$toaster.error(error.response.data.data[key]);
+                message   = error.response.data.data[key]
                 break;
               }
             } else {
-              this.$toaster.error(error.response.data.message);
+              message = error.response.data.message
             }
-          } else {
-            this.$toaster.error("Whoops!! something went wrong");
-          }
+          } 
+          this.$swal({
+            icon: 'error',
+            title: `<strong>Authentication Failed.</strong>`,
+            html:`${message}`,
+            showCloseButton: true,
+            focusConfirm: false,
+          })
         })
         .finally(() => {
           this.isLoading = false;

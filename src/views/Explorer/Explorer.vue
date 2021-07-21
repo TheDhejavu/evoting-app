@@ -56,7 +56,7 @@
                 class="
                   border
                   p-4
-                  bg-yellow-100
+                  bg-blue-100
                   border-emerald-500
                   text-emerald-600
                   font-medium

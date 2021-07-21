@@ -52,7 +52,7 @@ export function castBallot(id, payload) {
 }
 
 export function getResults(id) {
-    return axios.get(`${BASE_URL}/voting/${id}/results`, authHeader())
+    return axios.get(`${BASE_URL}/elections/${id}/results`, authHeader())
 }
 
 export function getBlockchain() {

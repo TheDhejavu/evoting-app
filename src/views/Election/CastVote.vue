@@ -71,7 +71,7 @@
                   <button
                     v-if="canVote(election)"
                     :disabled="selectedCandidate !== ''"
-                    @click="CastVote(candidate)"
+                    @click="handleCastVote(candidate)"
                     class="
                       mt-10
                       relative
@@ -85,7 +85,7 @@
                       px-10
                       rounded-lg
                       tracking-wide
-                      font-semibold
+                      font-extrabold
                       focus:outline-none
                       focus:shadow-outline
                       hover:bg-green-600
@@ -99,24 +99,7 @@
                     <span
                       class="absolute left-0 inset-y-0 flex items-center pl-3"
                     >
-                      <svg
-                        class="
-                          h-5
-                          w-5
-                          text-green-400
-                          group-hover:text-green-400
-                        "
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                        aria-hidden="true"
-                      >
-                        <path
-                          fill-rule="evenodd"
-                          d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
-                          clip-rule="evenodd"
-                        />
-                      </svg>
+                      <i class="uil uil-thumbs-up text-2xl"></i>
                     </span>
                     <loader
                       :loading="selectedCandidate === candidate.id"
@@ -140,8 +123,8 @@
                       font-bold
                       text-center
                     "
-                    :class="phase(election)"
-                    >{{ election.phase }} phase
+                    :class="phase(election.phase)"
+                    >{{ electionPhase(election.phase) }} phase
                   </span>
                 </div>
               </div>
@@ -157,7 +140,6 @@
 import Layout from "./components/layout";
 import { getElection, castBallot } from "@/api";
 import Loader from "vue-spinner/src/PulseLoader.vue";
-
 export default {
   name: "candidate",
   components: {
@@ -170,9 +152,15 @@ export default {
         candidates: [],
       },
       selectedCandidate: "",
+      message: "",
+      phases:  {
+        "voting_end": "voting end",
+        "accreditation_end": "accreditation end",
+      },
     };
   },
   mounted() {
+   
     getElection(this.$route.params.election)
       .then((response) => {
         this.election = response.data.data;
@@ -182,41 +170,80 @@ export default {
       });
   },
   methods: {
-    phase(election) {
-      console.log(election.phase);
-      return election.phase === "accreditation"
-        ? "bg-yellow-300"
-        : election.phase === "initial"
-        ? "bg-gray-200"
-        : "bg-green-500";
+    phase(phase) {
+      if(phase === "accreditation" || phase === "voting" )
+        return "bg-green-300"
+
+      if(phase === "accreditation_end" || phase === "voting_end")
+        return "bg-red-300"
+
+      return "bg-green-500";
+    },
+     electionPhase(phase){
+      if(phase in this.phases) {
+        return this.phases[phase]
+      }
+
+      return phase;
+    },
+    handleCastVote(candidate) {
+      this.$alertModal.show({
+        title: "Cast vote",
+        text: "Are you sure you want to vote for this candidate ? This action is irreversible.",
+        confirmEnabled: true,
+        onConfirm: () => {
+          return this.CastVote(candidate);
+        },
+      });
     },
     CastVote(candidate) {
       this.selectedCandidate = candidate.id;
-      castBallot(this.election.id, {
+      
+      return castBallot(this.election.id, {
         candidate: candidate.pubkey,
       })
         .then((response) => {
           console.log(response);
-          this.$toaster.success("Successfully voted");
+          var data = response.data.data;
+          this.$swal({
+            icon: 'success',
+            title: '<strong><i class="uil uil-thumbs-up"></i> Successfully Voted</strong>',
+            html:
+              `You have successfully voted for your preferred candidate 
+              <p class="text-xs text-left leading-6 bg-green-100 rounded-lg p-5 m-4">
+                <strong>Name:</strong> ${data.full_name} <br/>
+                <strong>Public key:</strong> ${data.pubkey} <br/>
+                <strong>Political party:</strong> ${data.political_party.name}(${data.political_party.slug})
+              </p>`,
+            showCloseButton: true,
+            focusConfirm: false,
+          })
+          return true;
         })
         .catch((error) => {
           console.log(error);
           if (error.response) {
-            this.$toaster.error(error.response.data.message);
+            this.message = error.response.data.message
           } else {
-            this.$toaster.error("Whoops!! something went wrong");
+            this.message = "Whoops!! something went wrong";
           }
+          this.$swal({
+            icon: 'error',
+            title: `<strong>Voting failed</strong>`,
+            html:
+              `${this.message}`,
+            showCloseButton: true,
+            focusConfirm: false,
+          })
+
+          return true;
         })
         .finally(() => {
           this.selectedCandidate = "";
         });
     },
     canVote(election) {
-      return election.phase === "accreditation"
-        ? false
-        : election.phase === "initial"
-        ? false
-        : true;
+      return election.phase === "voting"
     },
   },
 };

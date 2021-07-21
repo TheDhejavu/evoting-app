@@ -3,17 +3,17 @@
     <div class="p-5 mb-6">
       <div class="border-b border-gray-200 mb-5 relative">
         <h1 class="py-5 transition text-xl font-bold">Election</h1>
-        <div class="absolute right-0 flex top-4 flex">
+        <div class="absolute right-0 flex top-2 flex">
           <button
+           
             @click="handleAccreditation(true)"
             class="
               relative
               w-full
-              mb-2
-              flex
+              mb-20
               justify-center
               bg-green-500
-              text-gray-100
+              shadow-xl
               p-3
               rounded-lg
               tracking-wide
@@ -27,7 +27,7 @@
               duration-300
             "
           >
-            Start Accreditation
+            <i class="uil uil-user-circle text-xl"></i> Accredite Me
           </button>
         </div>
       </div>
@@ -138,9 +138,9 @@
                 font-bold
                 text-center
               "
-              :class="phase(election)"
+              :class="phase(election.phase)"
             >
-              {{ election.phase }}
+              {{ electionPhase(election.phase) }}
             </p>
           </div>
         </div>
@@ -150,6 +150,7 @@
       @close="handleAccreditation(false)"
       :isVisible="isAcModalVisible"
     />
+    <sweet-modal icon="success" ref="modal" :title="message"></sweet-modal>
   </Layout>
 </template>
 <script>
@@ -165,6 +166,10 @@ export default {
   data() {
     return {
       isAcModalVisible: false,
+      phases:  {
+        "voting_end": "voting end",
+        "accreditation_end": "accreditation end",
+      },
       election: {
         title: "",
         description: "",
@@ -178,18 +183,28 @@ export default {
           end: "",
         },
       },
+      message: ""
     };
   },
   methods: {
-    phase(election) {
-      return election.phase === "accreditation"
-        ? "bg-yellow-300"
-        : election.phase === "initial"
-        ? "bg-gray-200"
-        : "bg-green-500";
+    phase(phase) {
+      if(phase === "accreditation" || phase === "voting" )
+        return "bg-green-300"
+
+      if(phase === "accreditation_end" || phase === "voting_end")
+        return "bg-red-300"
+
+      return "bg-green-500";
     },
     handleAccreditation(value) {
       this.isAcModalVisible = value;
+    },
+    electionPhase(phase){
+      if(phase in this.phases) {
+        return this.phases[phase]
+      }
+
+      return phase;
     },
   },
   mounted() {
